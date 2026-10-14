@@ -1,0 +1,151 @@
+---
+// Вариант 4 – по мотивам marc-o-polo.ru: кампания на весь экран, узкий жирный капс-заголовок снизу слева,
+// прозрачная шапка поверх фото, спокойная серо-бежевая гамма и ровная сетка товаров.
+import Base from '../../layouts/Base.astro';
+import { CartCount, Chips } from '../../components/Shop';
+import { site, cats, catCount, pick, photo, srcset, rub, off, url } from '../../data/site';
+
+const crew = pick([108, 13, 12, 86, 175]);
+const catPics: Record<string, number> = { outer: 16, knit: 141, shirts: 90, pants: 11, shoes: 83 };
+const items = pick([12, 16, 6, 21, 130, 106, 99, 90, 11, 17, 0, 174]);
+---
+<Base title="SIKOR – мужская одежда · вариант Marc O’Polo" fonts="Barlow+Condensed:wght@600;700|Barlow:wght@400;500;600" theme="#8e8a85">
+  <header class="hd">
+    <nav class="hd__l"><a href="#new">Мужчинам</a><a href="#new">Новинки</a><a href="#story">Образы</a></nav>
+    <a href={url('')} class="hd__logo"><span class="logo">SIKOR</span><small>Est. in Chelyabinsk</small></a>
+    <div class="hd__r">
+      <span class="hd__city"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-6.3 7-12a7 7 0 0 0-14 0c0 5.7 7 12 7 12Z" /><circle cx="12" cy="9" r="2.5" /></svg>{site.city}</span>
+      <span class="hd__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8h12l-1 12H7L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg><CartCount client:load /></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. Кампания -->
+    <section class="hero">
+      <div class="hero__crew">{crew.map((p, i) => <img src={photo(p, 1200)} alt={p.title} fetchpriority={i < 2 ? 'high' : 'auto'} />)}</div>
+      <div class="hero__shade"></div>
+      <div class="hero__txt">
+        <h1>SIKOR осень /<br />зима’26</h1>
+        <a href="#new" class="hero__link">Смотреть коллекцию</a>
+      </div>
+      <div class="hero__dash"><i class="is-on"></i><i></i><i></i><i></i><i></i><i></i></div>
+    </section>
+
+    <!-- 2. Категории -->
+    <section class="sec">
+      <div class="wrap">
+        <h2 class="h2">Категории</h2>
+        <ul class="cats">
+          {cats.map((c) => (
+            <li><a href="#new"><img src={photo(pick([catPics[c.id]])[0])} alt="" loading="lazy" /><b>{c.title}</b><span>{catCount(c.id)} моделей</span></a></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. Новинки -->
+    <section class="sec sec--grey" id="new">
+      <div class="wrap">
+        <div class="row">
+          <h2 class="h2">Новинки</h2>
+          <Chips client:load target="#new" chips={cats.filter((c) => items.some((p) => p.cat === c.id)).map((c) => ({ id: c.id, title: c.title }))} />
+        </div>
+        <ul class="grid">
+          {items.map((p) => (
+            <li class="card" data-cat={p.cat}>
+              <div class="card__pic">
+                <img src={photo(p)} srcset={srcset(p)} sizes="(max-width: 700px) 50vw, 25vw" alt={p.title} loading="lazy" />
+                {p.old ? <span class="card__lab card__lab--sale">Sale {off(p)}</span> : <span class="card__lab">Новинка</span>}
+                <button class="card__btn" type="button" data-add={p.title}>В корзину</button>
+              </div>
+              <p class="card__t">{p.title}</p>
+              <p class="card__p">{p.old && <s>{rub(p.old)}</s>} {rub(p.price)}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. История -->
+    <section class="story" id="story">
+      <div class="story__pics">{pick([46, 50]).map((p) => <img src={photo(p, 1200)} alt="" loading="lazy" />)}</div>
+      <div class="story__txt">
+        <p class="eyebrow">О бренде</p>
+        <h2>Без логотипов.<br />Без лишнего.</h2>
+        <p>{site.about}</p>
+        <p>Приходите в магазин: стилист подберёт размер и соберёт образ целиком.</p>
+        <dl>
+          <div><dt>Адрес</dt><dd>{site.city}, {site.address}, {site.mall}</dd></div>
+          <div><dt>Часы</dt><dd>{site.hours}</dd></div>
+          <div><dt>Телефон</dt><dd><a href={site.phoneHref}>{site.phone}</a></dd></div>
+        </dl>
+        <a class="btn" href={site.write} target="_blank" rel="noopener">Написать стилисту</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ft">
+    <div class="wrap ft__in"><span class="logo">SIKOR</span><span>© 2026 SIKOR · {site.city}</span><a href={site.vk}>VK</a></div>
+  </footer>
+</Base>
+
+<style is:global>
+  body { background: #fff; color: #1d1d1b; font: 400 15px/1.55 'Barlow', system-ui, sans-serif; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 clamp(16px, 2vw, 32px); }
+  .hd { position: absolute; inset: 0 0 auto; z-index: 20; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 18px clamp(16px, 2vw, 32px); color: #fff; }
+  .hd__l { display: flex; gap: 24px; font: 700 17px/1 'Barlow Condensed', sans-serif; text-transform: uppercase; }
+  .hd__logo { display: grid; justify-items: center; gap: 4px; } .hd__logo .logo { font-size: 28px; }
+  .hd__logo small { font-size: 8px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+  .hd__r { display: flex; justify-content: end; align-items: center; gap: 28px; font: 700 15px 'Barlow Condensed', sans-serif; }
+  .hd__city, .hd__ic { display: flex; align-items: center; gap: 6px; } .hd svg { width: 24px; }
+
+  .hero { position: relative; height: 100svh; min-height: 600px; overflow: hidden; background: #8e8a85; }
+  .hero__crew { display: grid; grid-template-columns: repeat(5, 1fr); height: 100%; }
+  .hero__crew img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; filter: saturate(.75); }
+  .hero__shade { position: absolute; inset: 0; background: linear-gradient(0deg, #0007, transparent 45%), linear-gradient(180deg, #0005, transparent 22%); }
+  .hero__txt { position: absolute; left: clamp(16px, 2vw, 32px); bottom: 70px; color: #fff; }
+  .hero h1 { font: 700 clamp(44px, 6vw, 88px)/.95 'Barlow Condensed', sans-serif; text-transform: uppercase; }
+  .hero__link { display: inline-block; margin-top: 18px; font: 700 16px 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: .04em; border-bottom: 2px solid #fff; }
+  .hero__dash { position: absolute; left: clamp(16px, 2vw, 32px); bottom: 28px; display: flex; gap: 8px; }
+  .hero__dash i { width: 14px; height: 2px; background: #fff8; } .hero__dash i.is-on { width: 48px; background: #fff; }
+
+  .sec { padding: clamp(48px, 6vw, 88px) 0; } .sec--grey { background: #f3f1ee; }
+  .h2 { font: 700 clamp(28px, 3vw, 44px)/1 'Barlow Condensed', sans-serif; text-transform: uppercase; margin-bottom: 28px; }
+  .cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .cats a { display: grid; gap: 4px; } .cats img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; margin-bottom: 8px; transition: opacity .3s; }
+  .cats a:hover img { opacity: .85; } .cats b { font: 700 19px/1.1 'Barlow Condensed', sans-serif; text-transform: uppercase; } .cats span { font-size: 13px; color: #77736d; }
+
+  .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: start; gap: 12px 24px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { height: 36px; padding: 0 14px; border: 1px solid #c9c4bc; font: 600 14px 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+  .chips button.is-on { background: #1d1d1b; color: #fff; border-color: #1d1d1b; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px 12px; }
+  .card__pic { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: #e7e3dd; }
+  .card__pic img { width: 100%; height: 100%; object-fit: cover; }
+  .card__lab { position: absolute; top: 10px; left: 10px; padding: 3px 8px; background: #fff; font: 600 12px 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+  .card__lab--sale { background: #a3301e; color: #fff; }
+  .card__btn { position: absolute; left: 10px; right: 10px; bottom: 10px; height: 44px; background: #1d1d1bdd; color: #fff; font: 700 15px 'Barlow Condensed', sans-serif; text-transform: uppercase; transform: translateY(70px); transition: transform .3s; }
+  .card:hover .card__btn, .card__btn:focus-visible, .card__btn.is-added { transform: none; }
+  .card__t { margin-top: 12px; font-weight: 500; } .card__p { font-weight: 600; } .card__p s { color: #8a857e; font-weight: 400; margin-right: 6px; }
+
+  .story { display: grid; grid-template-columns: 1.1fr 1fr; background: #e8e1d7; }
+  .story__pics { display: grid; grid-template-columns: 1fr 1fr; }
+  .story__pics img { width: 100%; height: 100%; object-fit: cover; min-height: 520px; }
+  .story__txt { display: grid; gap: 18px; align-content: center; padding: clamp(32px, 5vw, 80px); }
+  .eyebrow { font: 700 14px 'Barlow Condensed', sans-serif; letter-spacing: .12em; text-transform: uppercase; color: #77736d; }
+  .story h2 { font: 700 clamp(36px, 4vw, 60px)/.95 'Barlow Condensed', sans-serif; text-transform: uppercase; }
+  .story dl { display: grid; gap: 10px; margin: 8px 0; } .story dl div { display: grid; grid-template-columns: 90px 1fr; gap: 12px; }
+  .story dt { color: #77736d; } .story dd { margin: 0; font-weight: 500; }
+  .btn { justify-self: start; display: inline-flex; align-items: center; height: 50px; padding: 0 28px; background: #1d1d1b; color: #fff; font: 700 16px 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+
+  .ft { padding: 28px 0; background: #1d1d1b; color: #bbb6ae; font-size: 13px; }
+  .ft__in { display: flex; gap: 24px; align-items: center; } .ft .logo { color: #fff; font-size: 22px; margin-right: auto; }
+
+  @media (max-width: 900px) {
+    .hd { grid-template-columns: auto 1fr auto; } .hd__l a:not(:first-child), .hd__city { display: none; } .hd__logo { justify-self: center; }
+    .hero { height: 86svh; } .hero__crew { grid-template-columns: repeat(2, 1fr); } .hero__crew img:nth-child(n+3) { display: none; }
+    .cats { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 40%; overflow-x: auto; scrollbar-width: none; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 28px 8px; } .card__btn { transform: none; height: 38px; font-size: 13px; }
+    .story { grid-template-columns: 1fr; } .story__pics img { min-height: 0; aspect-ratio: 3 / 4; }
+  }
+</style>
