@@ -1,0 +1,207 @@
+---
+// Вариант 6 – по мотивам henderson.ru: классический мужской магазин. Полоса-объявление, широкая шапка с меню и «Sale»,
+// баннер-слайдер с текстом слева, круглые разделы, лента новинок со стрелками, баннер услуги и магазин.
+import Base from '../../layouts/Base.astro';
+import Slider from '../../components/Slider';
+import { CartCount, Arrows } from '../../components/Shop';
+import { site, cats, catCount, pick, photo, rub, off, url } from '../../data/site';
+
+const round: Record<string, number> = { outer: 108, knit: 128, shirts: 99, pants: 10, shoes: 83 };
+const fresh = pick([31, 138, 36, 106, 50, 90, 32, 86, 174, 11, 3, 0]);
+---
+<Base title="SIKOR – мужская одежда · вариант Henderson" fonts="Jost:wght@300;400;500;600" theme="#ffffff">
+  <p class="promo">Консультация и подбор от стилиста в магазине · {site.mall}, {site.hours}</p>
+  <header class="hd">
+    <div class="hd__in">
+      <a href={url('')} class="logo hd__logo">SIKOR</a>
+      <nav class="hd__nav">
+        <a href="#new">Новинки</a>
+        {cats.map((c) => <a href="#cats">{c.title}</a>)}
+        <a href="#new" class="sale">Sale</a>
+      </nav>
+      <div class="hd__r">
+        <a href={site.phoneHref}>{site.phone}</a>
+        <span class="hd__cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h12l-1 12H7L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg><CartCount client:load /></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. Баннер-слайдер -->
+    <section class="hero" id="hero">
+      <div class="slide is-active">
+        <div class="slide__pics">{pick([31, 138]).map((p) => <img src={photo(p, 1200)} alt="" fetchpriority="high" />)}</div>
+        <div class="slide__txt">
+          <p class="eyebrow">Новая коллекция</p>
+          <h1>Пальто и шерсть<br />на холодный сезон</h1>
+          <p>Шерстяное пальто Balmacaan, классическое пальто и тёплый трикотаж.</p>
+          <a class="btn" href="#new">Смотреть</a>
+        </div>
+      </div>
+      <div class="slide">
+        <div class="slide__pics">{pick([175, 174]).map((p) => <img src={photo(p, 1200)} alt="" loading="lazy" />)}</div>
+        <div class="slide__txt">
+          <p class="eyebrow sale">Sale до −59%</p>
+          <h1>Дублёнки<br />по сниженным ценам</h1>
+          <p>Дублёнки с отложным воротником, бомберы на пуху и зимняя обувь.</p>
+          <a class="btn" href="#new">Выбрать</a>
+        </div>
+      </div>
+      <div class="slide">
+        <div class="slide__pics">{pick([46, 50]).map((p) => <img src={photo(p, 1200)} alt="" loading="lazy" />)}</div>
+        <div class="slide__txt">
+          <p class="eyebrow">Стилист SIKOR</p>
+          <h1>Образ для работы<br />и выходных</h1>
+          <p>Подберём рубашку, брюки и обувь так, чтобы всё сочеталось.</p>
+          <a class="btn" href={site.write} target="_blank" rel="noopener">Записаться</a>
+        </div>
+      </div>
+      <Slider client:load target="#hero" labels={['Новая коллекция', 'Sale', 'Стилист']} cls="dots" ms={5500} />
+    </section>
+
+    <!-- 2. Круглые разделы -->
+    <section class="sec" id="cats">
+      <h2 class="h2">Категории</h2>
+      <ul class="round">
+        {cats.map((c) => (
+          <li><a href="#new"><img src={photo(pick([round[c.id]])[0])} alt="" loading="lazy" /><b>{c.title}</b><span>{catCount(c.id)}</span></a></li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- 3. Новинки -->
+    <section class="sec sec--new" id="new">
+      <div class="head"><h2 class="h2">Новинки</h2><Arrows client:visible target="#rail" cls="arrows" /></div>
+      <ul class="rail" id="rail">
+        {fresh.map((p) => (
+          <li class="card">
+            <div class="card__pic">
+              <img src={photo(p)} alt={p.title} loading="lazy" />
+              {p.old && <span class="card__sale">{off(p)}</span>}
+              <span class="card__fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" /></svg></span>
+            </div>
+            <p class="card__t">{p.title}</p>
+            <p class="card__p"><b class={p.old ? 'sale' : ''}>{rub(p.price)}</b>{p.old && <s>{rub(p.old)}</s>}</p>
+            <button class="card__btn" type="button" data-add={p.title}>Добавить в корзину</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- 4. Услуга и магазин -->
+    <section class="svc">
+      <div class="svc__ban">
+        <img src={photo(pick([95])[0], 1200)} alt="" loading="lazy" />
+        <div class="svc__txt">
+          <p class="eyebrow">Услуга</p>
+          <h2>Персональный подбор образа</h2>
+          <p>{site.about}</p>
+          <a class="btn btn--light" href={site.write} target="_blank" rel="noopener">Написать стилисту</a>
+        </div>
+      </div>
+      <div class="svc__store">
+        <h3>Магазин SIKOR</h3>
+        <p class="svc__addr">{site.city}<br />{site.address}<br />{site.mall}</p>
+        <p>{site.hours}</p>
+        <p><a href={site.phoneHref}>{site.phone}</a></p>
+        <p class="svc__rate">★ {site.rating} · {site.reviews} отзывов</p>
+        <a class="btn" href={site.map} target="_blank" rel="noopener">Как добраться</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ft">
+    <div class="ft__in">
+      <span class="logo">SIKOR</span>
+      <nav><a href="#new">Новинки</a><a href="#cats">Каталог</a><a href={site.write}>Стилист</a><a href={site.vk}>VK</a></nav>
+      <span>© 2026 SIKOR</span>
+    </div>
+  </footer>
+</Base>
+
+<style is:global>
+  body { background: #fff; color: #161616; font: 400 15px/1.5 'Jost', system-ui, sans-serif; }
+  .promo { padding: 8px 16px; background: #161616; color: #fff; text-align: center; font-size: 12px; letter-spacing: .06em; }
+  .hd { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid #e6e6e6; }
+  .hd__in { display: flex; align-items: center; gap: 36px; height: 76px; max-width: 1440px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px); }
+  .hd__logo { font-size: 30px; letter-spacing: .14em; }
+  .hd__nav { display: flex; gap: 22px; font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+  .hd__nav a:hover { color: #6b4a33; }
+  .sale { color: #c8102e !important; }
+  .hd__r { display: flex; align-items: center; gap: 22px; margin-left: auto; font-size: 14px; white-space: nowrap; }
+  .hd__cart { display: flex; align-items: center; gap: 4px; } .hd__cart svg { width: 24px; }
+
+  .hero { position: relative; height: min(82svh, 760px); min-height: 520px; background: #ece8e2; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1.25fr; opacity: 0; visibility: hidden; transition: opacity .8s, visibility 0s .8s; }
+  .slide.is-active { opacity: 1; visibility: visible; transition: opacity .8s; }
+  .slide__pics { order: 2; display: grid; grid-template-columns: 1fr 1fr; }
+  .slide__pics img { width: 100%; height: 100%; object-fit: cover; }
+  .slide__txt { display: grid; gap: 18px; align-content: center; padding: 0 clamp(16px, 5vw, 96px); }
+  .slide h1 { font-size: clamp(32px, 3.6vw, 54px); font-weight: 400; line-height: 1.08; text-transform: uppercase; letter-spacing: .02em; }
+  .slide p:not(.eyebrow) { max-width: 420px; color: #555; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #6b4a33; }
+  .btn { justify-self: start; display: inline-flex; align-items: center; height: 50px; padding: 0 36px; background: #161616; color: #fff; font-size: 13px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; transition: background .2s; }
+  .btn:hover { background: #6b4a33; }
+  .btn--light { background: #fff; color: #161616; }
+  .dots { position: absolute; left: clamp(16px, 5vw, 96px); bottom: 32px; display: flex; gap: 10px; }
+  .dots .bar { display: block; width: 36px; height: 3px; background: #1616162e; }
+  .dots .bar > span:not(.bar__track) { display: none; }
+  .dots .bar__track { display: block; height: 100%; } .dots .bar__track i { display: block; height: 100%; background: #161616; transform: scaleX(0); transform-origin: left; }
+  .dots .bar.is-done .bar__track i { transform: none; }
+  .dots .bar.is-active .bar__track i { animation: fill var(--dur) linear forwards; } .dots .bar.is-paused .bar__track i { animation-play-state: paused; }
+  @keyframes fill { to { transform: none; } }
+
+  .sec { max-width: 1440px; margin: 0 auto; padding: clamp(48px, 6vw, 80px) clamp(16px, 3vw, 40px) 0; }
+  .h2 { font-size: clamp(24px, 2.4vw, 34px); font-weight: 400; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 32px; }
+  .round { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; text-align: center; }
+  .round a { display: grid; gap: 4px; justify-items: center; }
+  .round img { width: min(100%, 200px); aspect-ratio: 1; object-fit: cover; object-position: 50% 25%; border-radius: 50%; margin-bottom: 12px; transition: transform .4s; }
+  .round a:hover img { transform: scale(1.04); }
+  .round b { font-weight: 500; text-transform: uppercase; font-size: 13px; letter-spacing: .06em; } .round span { color: #888; font-size: 13px; }
+
+  .head { display: flex; justify-content: space-between; align-items: start; }
+  .arrows { display: flex; gap: 6px; }
+  .arrows button { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid #ddd; transition: .2s; }
+  .arrows button:hover { border-color: #161616; } .arrows svg { width: 18px; }
+  .rail { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 3 * 20px) / 4); gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .card { scroll-snap-align: start; display: flex; flex-direction: column; }
+  .card__pic { position: relative; aspect-ratio: 3 / 4; background: #f3f1ee; overflow: hidden; }
+  .card__pic img { width: 100%; height: 100%; object-fit: cover; }
+  .card__sale { position: absolute; top: 12px; left: 12px; padding: 3px 8px; background: #c8102e; color: #fff; font-size: 12px; font-weight: 600; }
+  .card__fav { position: absolute; top: 12px; right: 12px; width: 24px; }
+  .card__t { margin-top: 14px; font-size: 15px; }
+  .card__p { display: flex; gap: 10px; margin-top: 2px; } .card__p b { font-weight: 600; } .card__p s { color: #999; }
+  .card__p { margin-bottom: 12px; }
+  .card__btn { margin-top: auto; height: 44px; border: 1px solid #161616; font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; transition: .2s; }
+  .card__btn:hover, .card__btn.is-added { background: #161616; color: #fff; }
+
+  .svc { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; max-width: 1440px; margin: 0 auto; padding: clamp(56px, 7vw, 96px) clamp(16px, 3vw, 40px); }
+  .svc__ban { position: relative; min-height: 460px; overflow: hidden; color: #fff; }
+  .svc__ban img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+  .svc__ban::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #161616dd, #16161622 70%); }
+  .svc__txt { position: relative; z-index: 1; display: grid; gap: 16px; max-width: 440px; padding: clamp(28px, 4vw, 56px); height: 100%; align-content: end; }
+  .svc__txt .eyebrow { color: #d9c3a5; }
+  .svc__txt h2 { font-size: clamp(26px, 2.6vw, 38px); font-weight: 400; line-height: 1.1; text-transform: uppercase; }
+  .svc__store { display: grid; gap: 10px; align-content: start; padding: 36px; background: #f3f1ee; }
+  .svc__store h3 { font-size: 20px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .svc__addr { font-size: 17px; } .svc__rate { color: #6b4a33; font-weight: 500; }
+  .svc__store .btn { margin-top: 12px; }
+
+  .ft { background: #161616; color: #aaa; font-size: 13px; }
+  .ft__in { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 40px; max-width: 1440px; margin: 0 auto; padding: 32px clamp(16px, 3vw, 40px); }
+  .ft .logo { color: #fff; font-size: 24px; letter-spacing: .14em; } .ft nav { display: flex; gap: 24px; margin-right: auto; text-transform: uppercase; letter-spacing: .06em; }
+
+  @media (max-width: 1100px) { .hd__nav { display: none; } }
+  @media (max-width: 900px) {
+    .hd__r a { display: none; } .hd__in { height: 60px; } .hd__logo { font-size: 24px; }
+    .hero { height: auto; min-height: 0; } .slide { position: relative; display: none; grid-template-columns: 1fr; }
+    .slide.is-active { display: grid; } .slide__pics { order: 0; height: 64vw; } .slide__txt { padding: 28px 16px 64px; gap: 14px; }
+    .dots { left: 16px; bottom: 24px; }
+    .round { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 30%; overflow-x: auto; scrollbar-width: none; gap: 12px; }
+    .round b { font-size: 11px; }
+    .head .arrows { display: none; }
+    .rail { grid-auto-columns: calc((100% - 10px) / 2); gap: 10px; } .card__btn { font-size: 10px; letter-spacing: .04em; }
+    .svc { grid-template-columns: 1fr; } .svc__ban { min-height: 420px; }
+  }
+</style>
