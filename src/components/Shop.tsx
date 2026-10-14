@@ -44,3 +44,21 @@ export function Chips({ chips, target, cls = 'chips' }: { chips: Chip[]; target:
     </div>
   );
 }
+
+// Стрелки для горизонтальной ленты (scroll-snap): листают ленту на ширину видимой части.
+export function Arrows({ target, cls = 'arrows' }: { target: string; cls?: string }) {
+  const go = (dir: number) => {
+    const el = document.querySelector<HTMLElement>(target);
+    el?.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' });
+  };
+  return (
+    <div class={cls}>
+      <button type="button" aria-label="Назад" onClick={() => go(-1)}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+      </button>
+      <button type="button" aria-label="Вперёд" onClick={() => go(1)}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      </button>
+    </div>
+  );
+}
