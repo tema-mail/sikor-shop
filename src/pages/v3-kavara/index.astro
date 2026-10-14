@@ -1,0 +1,185 @@
+---
+// Вариант 3 – по мотивам kavarabrand.com: чёрно-белая гамма, моноширинный шрифт, бегущая строка,
+// квадратные скобки в заголовках, плитки с «плюсами» по углам, ч/б кадры.
+import Base from '../../layouts/Base.astro';
+import { CartCount, Arrows } from '../../components/Shop';
+import { site, pick, photo, rub, url, catCount } from '../../data/site';
+
+const tiles = [
+  { t: 'Верхняя одежда', p: pick([15])[0], c: 'outer' },
+  { t: 'Трикотаж', p: pick([34])[0], c: 'knit' },
+  { t: 'Обувь', p: pick([3])[0], c: 'shoes' },
+];
+const popular = pick([8, 37, 10, 32, 105, 17, 31, 1]);
+const ticker = `${site.motto} — Подбор образа у стилиста — ${site.mall}, ${site.hours} — `;
+const book = [
+  { t: 'Outer', d: 'Пуховики, кожа, вельвет и шерстяные пальто. Тёплые куртки без лишних деталей.', c: 'outer' },
+  { t: 'Knit', d: 'Полузамки, свитеры и водолазки из шерсти, хлопка и вискозы. Основа гардероба.', c: 'knit' },
+  { t: 'Shoes', d: 'Лоферы, полуботинки и кеды из натуральной кожи и замши.', c: 'shoes' },
+];
+---
+<Base title="SIKOR – мужская одежда · вариант Kavara" fonts="JetBrains+Mono:wght@400;500;700|Unbounded:wght@400;500" theme="#000000">
+  <header class="hd">
+    <nav class="hd__l"><a href="#cat">Каталог +</a><a href="#about">О нас +</a><a href="#about">Где купить</a></nav>
+    <a href={url('')} class="hd__logo"><span class="logo">SIKOR</span><span class="hd__mark">(S)</span></a>
+    <nav class="hd__r"><a href="#pop">Поиск</a><a href={site.write}>Стилист</a><span>Корзина(<CartCount client:load />)</span></nav>
+  </header>
+  <div class="tick" aria-hidden="true"><div class="tick__in"><span>{ticker.repeat(4)}</span><span>{ticker.repeat(4)}</span></div></div>
+
+  <main>
+    <!-- 1. Первый экран -->
+    <section class="hero">
+      <div class="hero__pics">{pick([16, 13, 34, 8]).map((p) => <img src={photo(p, 1200)} alt="" />)}</div>
+      <div class="hero__txt">
+        <p class="hero__br">[БАЗА]</p>
+        <p class="hero__sub">Мужская одежда без логотипов. Осень – зима 2026</p>
+      </div>
+      <div class="hero__dots"><i class="is-on"></i><i></i><i></i><i></i></div>
+    </section>
+
+    <!-- 2. Разделы -->
+    <section class="sec" id="cat">
+      <h2 class="rule"><span>Без лишнего</span></h2>
+      <div class="tiles">
+        {tiles.map((t) => (
+          <a class="tile" href="#pop">
+            <img src={photo(t.p, 1200)} alt="" loading="lazy" />
+            <i class="pl pl--tl"></i><i class="pl pl--tr"></i><i class="pl pl--br"></i>
+            <span class="tile__t">{t.t}</span>
+          </a>
+        ))}
+      </div>
+      <a class="wide" href={site.write} target="_blank" rel="noopener">
+        <img src={photo(pick([31])[0], 1200)} alt="" loading="lazy" />
+        <span class="btn">Sikor looks</span>
+      </a>
+    </section>
+
+    <!-- 3. Популярные товары -->
+    <section class="sec" id="pop">
+      <div class="head">
+        <h2>Популярные товары</h2><span class="head__line"></span>
+        <Arrows client:visible target="#pop-rail" cls="arrows" />
+      </div>
+      <ul class="rail" id="pop-rail">
+        {popular.map((p) => (
+          <li class="card">
+            <div class="card__pic"><img src={photo(p)} alt={p.title} loading="lazy" /><span class="card__fav">♡</span></div>
+            <p class="card__t">{p.title}</p>
+            <p class="card__p">{rub(p.price)}</p>
+            <button class="card__btn" type="button" data-add={p.title}>+ В корзину</button>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- 4. О бренде -->
+    <section class="sec about" id="about">
+      <div class="about__logo"><span class="logo">SIKOR</span><span class="hd__mark">(S)</span></div>
+      <div class="about__grid">
+        <div class="about__txt">
+          <p>{site.about}</p>
+          <h3>В магазине вы найдёте:</h3>
+          <ul>
+            <li>Верхнюю одежду – {catCount('outer')} моделей</li>
+            <li>Свитеры, полузамки и водолазки</li>
+            <li>Рубашки, поло, брюки и джинсы</li>
+            <li>Обувь из натуральной кожи и замши</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="about__h">Посмотрите коллекции в магазине – {site.mall}</h3>
+          <div class="book">
+            {book.map((b) => <a href="#pop"><b>{b.t} ↗</b><span>{b.d}</span></a>)}
+          </div>
+        </div>
+      </div>
+      <p class="about__end">{site.city}, {site.address}. {site.hours}. <a href={site.phoneHref}>{site.phone}</a></p>
+    </section>
+  </main>
+
+  <footer class="ft">
+    <div><b>Покупателям</b><a href={site.write}>Подбор стилиста</a><a href={site.write}>Отложить размер</a><a href={site.vk}>Отзывы</a></div>
+    <div><b>Информация</b><a href="#about">О SIKOR</a><a href={site.map}>Как нас найти</a><a href={site.phoneHref}>{site.phone}</a></div>
+    <div><b>Социальные сети</b><a href={site.vk}>VK – {site.followers} подписчиков</a><p>© 2026 SIKOR</p></div>
+  </footer>
+</Base>
+
+<style is:global>
+  body { background: #fff; color: #000; font: 400 13px/1.55 'JetBrains Mono', ui-monospace, monospace; }
+  .hd { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 52px; padding: 0 clamp(16px, 3vw, 40px); background: #000; color: #fff; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+  .hd__l, .hd__r { display: flex; gap: 28px; } .hd__r { justify-content: end; }
+  .hd__logo { display: flex; align-items: center; gap: 8px; } .hd__logo .logo { font-size: 22px; letter-spacing: .06em; }
+  .hd__mark { display: inline-grid; place-items: center; font: 700 12px 'JetBrains Mono', monospace; }
+  .tick { overflow: hidden; background: #000; color: #fff; border-top: 1px solid #333; font-size: 11px; white-space: nowrap; }
+  .tick__in { display: flex; width: max-content; animation: tick 60s linear infinite; padding: 6px 0; }
+  @keyframes tick { to { transform: translateX(-50%); } }
+
+  .hero { position: relative; height: min(78svh, 760px); background: #111; overflow: hidden; }
+  .hero__pics { display: grid; grid-template-columns: repeat(4, 1fr); height: 100%; }
+  .hero__pics img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1) brightness(.75); }
+  .hero__txt { position: absolute; right: clamp(16px, 5vw, 80px); bottom: 18%; color: #fff; text-align: right; }
+  .hero__br { font: 400 clamp(48px, 9vw, 140px)/1 'Unbounded', sans-serif; letter-spacing: -.02em; }
+  .hero__sub { margin-top: 12px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+  .hero__dots { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; gap: 6px; }
+  .hero__dots i { width: 48px; height: 2px; background: #fff6; } .hero__dots i.is-on { background: #fff; }
+
+  .sec { padding: clamp(48px, 7vw, 90px) clamp(16px, 5vw, 80px); }
+  .rule { display: flex; align-items: center; gap: 24px; margin-bottom: 40px; font: 400 clamp(20px, 2.4vw, 30px)/1 'Unbounded', sans-serif; letter-spacing: .04em; text-transform: uppercase; }
+  .rule::before, .rule::after { content: ''; flex: 1; height: 1px; background: #000; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .tile { position: relative; aspect-ratio: 1; overflow: hidden; background: #222; }
+  .tile img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); transition: filter .6s, transform 1s; }
+  .tile:hover img { filter: none; transform: scale(1.03); }
+  .pl { position: absolute; width: 16px; height: 16px; } .pl::before, .pl::after { content: ''; position: absolute; background: #fff; }
+  .pl::before { left: 7px; top: 0; width: 1.5px; height: 16px; } .pl::after { top: 7px; left: 0; height: 1.5px; width: 16px; }
+  .pl--tl { top: 16px; left: 16px; } .pl--tr { top: 16px; right: 16px; } .pl--br { bottom: 16px; right: 16px; }
+  .tile__t { position: absolute; left: 20px; bottom: 18px; color: #fff; font-size: 12px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+  .wide { position: relative; display: grid; place-items: center; margin: 40px calc(-1 * clamp(16px, 5vw, 80px)) 0; height: clamp(280px, 36vw, 480px); overflow: hidden; background: #ccc; }
+  .wide img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; filter: grayscale(1) contrast(1.05); }
+  .btn { position: relative; padding: 14px 22px; background: #000; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+
+  .head { display: flex; align-items: center; gap: 20px; margin-bottom: 36px; }
+  .head h2 { font: 500 clamp(16px, 1.8vw, 22px)/1 'JetBrains Mono', monospace; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .head__line { flex: 1; height: 1px; background: #000; }
+  .arrows { display: flex; gap: 8px; }
+  .arrows button { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: #000; color: #fff; }
+  .arrows svg { width: 18px; }
+  .rail { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 2 * 32px) / 3); gap: 32px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .card { scroll-snap-align: start; }
+  .card__pic { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #f2f2f2; }
+  .card__pic img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); transition: filter .5s; }
+  .card:hover .card__pic img { filter: none; }
+  .card__fav { position: absolute; top: 10px; right: 14px; font-size: 20px; color: #fff; }
+  .card__t { margin-top: 14px; font-weight: 500; } .card__p { color: #555; }
+  .card__btn { margin-top: 10px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid #000; }
+  .card__btn.is-added { opacity: .4; }
+
+  .about { border-top: 1px solid #000; }
+  .about__logo { display: flex; align-items: center; gap: 10px; padding-bottom: 20px; margin-bottom: 28px; border-bottom: 1px solid #000; }
+  .about__logo .logo { font-size: 44px; letter-spacing: .04em; }
+  .about__grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; }
+  .about__txt { display: grid; gap: 14px; align-content: start; }
+  .about__txt h3, .about__h { font-size: 14px; font-weight: 700; }
+  .about__txt li::before { content: '+ '; }
+  .about__h { margin-bottom: 16px; }
+  .book { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .book a { display: grid; gap: 10px; align-content: start; padding: 18px; border: 1px solid #e3e3e3; min-height: 180px; transition: border-color .2s; }
+  .book a:hover { border-color: #000; } .book b { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; } .book span { font-size: 11px; color: #666; }
+  .about__end { margin-top: 48px; padding: 28px 0; background: #000; color: #fff; text-align: center; font-size: clamp(13px, 1.4vw, 16px); font-weight: 500; margin-inline: calc(-1 * clamp(16px, 5vw, 80px)); }
+
+  .ft { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 48px clamp(16px, 5vw, 80px); background: #000; color: #fff; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  .ft div { display: grid; gap: 10px; align-content: start; border-top: 1px solid #333; padding-top: 16px; } .ft b { color: #888; font-weight: 500; }
+
+  @media (max-width: 900px) {
+    .hd { grid-template-columns: auto 1fr auto; gap: 12px; } .hd__l a:not(:first-child), .hd__r a { display: none; }
+    .hd__logo { justify-self: center; }
+    .hero { height: 70svh; } .hero__pics { grid-template-columns: 1fr 1fr; } .hero__pics img:nth-child(n+3) { display: none; }
+    .tiles { grid-template-columns: 1fr 1fr; gap: 10px; } .tile:first-child { grid-column: span 2; aspect-ratio: 16 / 10; }
+    .rail { grid-auto-columns: calc((100% - 10px) / 2); gap: 10px; }
+    .head .arrows { display: none; }
+    .about__grid, .book { grid-template-columns: 1fr; } .book a { min-height: 0; }
+    .ft { grid-template-columns: 1fr; }
+  }
+</style>
