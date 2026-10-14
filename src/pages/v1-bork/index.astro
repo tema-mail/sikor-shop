@@ -1,0 +1,244 @@
+---
+// Вариант 1 – раскладка bork.ru: тёмная витрина, слайдер первого экрана с полосками, плитки разделов, капс-навигация.
+// Цвета SIKOR: чёрный, молочный и шоколад (их полузамки и кожа).
+import Base from '../../layouts/Base.astro';
+import Slider from '../../components/Slider';
+import { CartCount, Chips } from '../../components/Shop';
+import { site, cats, catCount, pick, photo, srcset, cover, rub, off, url } from '../../data/site';
+
+const items = pick([15, 7, 12, 28, 32, 31, 36, 46, 17, 11, 1, 175]);
+const tileCover: Record<string, number> = { outer: 13, knit: 6, shirts: 50, pants: 10, shoes: 4 };
+const tiles = cats.map((c) => ({ ...c, p: pick([tileCover[c.id]])[0] }));
+const services = [
+  { t: 'Подбор стилиста', d: 'В магазине соберём образ под вашу задачу: работа, встреча, выходные. Бесплатно.' },
+  { t: 'Готовые образы', d: 'Вещи сочетаются между собой – одна покупка закрывает целый комплект.' },
+  { t: 'Без логотипов', d: 'Базовая одежда без принтов и надписей. Акцент на ткани, посадке и деталях.' },
+  { t: 'Примерка в ТРК «Куба»', d: 'Приходите примерить – отложим размеры по сообщению.' },
+];
+---
+<Base title="SIKOR – мужская базовая одежда · вариант Bork" fonts="Manrope:wght@300;400;500;600" theme="#0b0b0b">
+  <header class="hd">
+    <div class="hd__in">
+      <a href={url('')} class="logo hd__logo">SIKOR</a>
+      <nav class="hd__nav">
+        {cats.slice(0, 4).map((c) => <a href="#catalog">{c.title}</a>)}
+        <a href="#about">Образы</a>
+      </nav>
+      <div class="hd__tools">
+        <a href={site.phoneHref} class="hd__phone">{site.phone}</a>
+        <span class="hd__cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 8h14l-1 12H6L5 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg><CartCount client:load /></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. Первый экран: слайдер -->
+    <section class="hero" id="hero">
+      <div class="slide is-active slide--cover">
+        <img src={cover(1920)} srcset={`${cover(960)} 960w, ${cover(1920)} 1920w`} sizes="100vw" alt="SIKOR – бренд мужской одежды: полузамки в шоколадном, бежевом и чёрном" fetchpriority="high" />
+        <div class="slide__shade"></div>
+        <div class="slide__txt">
+          <p class="caps">Осень – зима 2026</p>
+          <h1>Мужская база<br />без лишнего</h1>
+          <a class="btn btn--solid" href="#catalog">Смотреть каталог</a>
+        </div>
+      </div>
+      <div class="slide">
+        <div class="slide__pics">
+          {pick([15, 32, 31]).map((p) => <img src={photo(p, 1200)} alt={p.title} loading="lazy" />)}
+        </div>
+        <div class="slide__shade"></div>
+        <div class="slide__txt">
+          <p class="caps">Верхняя одежда</p>
+          <h2>Кожа, шерсть,<br />дублёнки</h2>
+          <a class="btn btn--solid" href="#catalog">Выбрать куртку</a>
+        </div>
+      </div>
+      <div class="slide">
+        <div class="slide__pics">
+          {pick([7, 28, 36]).map((p) => <img src={photo(p, 1200)} alt={p.title} loading="lazy" />)}
+        </div>
+        <div class="slide__shade"></div>
+        <div class="slide__txt">
+          <p class="caps">Консультация стилиста</p>
+          <h2>Соберём образ<br />под вашу задачу</h2>
+          <a class="btn btn--solid" href={site.write} target="_blank" rel="noopener">Написать стилисту</a>
+        </div>
+      </div>
+      <div class="hero__ui">
+        <Slider client:load target="#hero" labels={['Осень – зима 2026', 'Верхняя одежда', 'Подбор образа']} />
+      </div>
+    </section>
+
+    <!-- 2. Разделы каталога -->
+    <section class="sec" id="catalog">
+      <div class="wrap">
+        <div class="sec__head">
+          <h2 class="sec__title">Каталог</h2>
+          <p class="sec__sub">Пять разделов базового мужского гардероба</p>
+        </div>
+        <div class="tiles">
+          {tiles.map((c, i) => (
+            <a class={`tile tile--${i}`} href="#goods">
+              <img src={photo(c.p, i === 0 ? 1200 : 600)} alt="" loading="lazy" />
+              <span class="tile__txt"><span class="tile__t">{c.title}</span><span class="tile__n">{catCount(c.id)} моделей</span></span>
+              <span class="tile__arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Товары -->
+    <section class="sec sec--goods" id="goods">
+      <div class="wrap">
+        <div class="sec__head">
+          <h2 class="sec__title">Новинки сезона</h2>
+          <Chips client:load target="#goods" chips={cats.filter((c) => items.some((p) => p.cat === c.id)).map((c) => ({ id: c.id, title: c.title }))} />
+        </div>
+        <ul class="grid">
+          {items.map((p) => (
+            <li class="card" data-cat={p.cat}>
+              <div class="card__pic">
+                <img src={photo(p)} srcset={srcset(p)} sizes="(max-width: 700px) 50vw, 25vw" alt={p.title} loading="lazy" />
+                {p.old && <span class="card__badge">{off(p)}</span>}
+              </div>
+              <p class="card__t">{p.title}</p>
+              <p class="card__p">{rub(p.price)} {p.old && <s>{rub(p.old)}</s>}</p>
+              <button class="card__btn" type="button" data-add={p.title}>В корзину</button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. О магазине -->
+    <section class="sec about" id="about">
+      <div class="wrap about__in">
+        <div class="about__lead">
+          <p class="caps">SIKOR · {site.city}</p>
+          <h2 class="sec__title">{site.motto}</h2>
+          <p class="muted">{site.about}</p>
+          <div class="about__rate"><b>{site.rating}</b><span class="muted">рейтинг в VK<br />{site.reviews} отзывов · {site.followers} подписчиков</span></div>
+        </div>
+        <ol class="about__list">
+          {services.map((s, i) => (
+            <li><span class="caps">{String(i + 1).padStart(2, '0')}</span><h3>{s.t}</h3><p class="muted">{s.d}</p></li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ft">
+    <div class="wrap ft__in">
+      <p class="logo ft__logo">SIKOR</p>
+      <p>{site.city}, {site.address}<br />{site.mall} · {site.hours}</p>
+      <p><a href={site.phoneHref}>{site.phone}</a><br /><a href={site.vk}>vk.ru/sikor_men</a></p>
+    </div>
+  </footer>
+</Base>
+
+<style is:global>
+  body { background: #0b0b0b; color: #ecebe8; font: 400 15px/1.55 'Manrope', system-ui, sans-serif; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); }
+  .caps { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #b8ab98; }
+  .muted { color: #8d8a85; }
+  .btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 28px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; transition: .3s; }
+  .btn--solid { background: #ecebe8; color: #0b0b0b; border-color: #ecebe8; }
+  .btn--solid:hover { background: #d7c7ae; border-color: #d7c7ae; }
+
+  .hd { position: fixed; inset: 0 0 auto; z-index: 20; background: linear-gradient(#0b0b0bcc, transparent); }
+  .hd__in { display: flex; align-items: center; gap: 32px; height: 72px; padding: 0 clamp(16px, 4vw, 48px); max-width: 1400px; margin: 0 auto; }
+  .hd__logo { font-size: 26px; color: #fff; }
+  .hd__nav { display: flex; gap: 26px; margin: 0 auto; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+  .hd__nav a { opacity: .8; transition: opacity .2s; } .hd__nav a:hover { opacity: 1; }
+  .hd__tools { display: flex; align-items: center; gap: 22px; font-size: 13px; }
+  .hd__cart { display: flex; align-items: center; gap: 6px; } .hd__cart svg { width: 22px; }
+
+  .hero { position: relative; height: 100svh; min-height: 600px; overflow: hidden; background: #050505; }
+  .slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 1s, visibility 0s 1s; }
+  .slide.is-active { opacity: 1; visibility: visible; transition: opacity 1s; }
+  /* на обложке VK уже есть надпись – показываем её целиком сверху, наш текст ниже */
+  .slide--cover > img { position: absolute; top: 0; left: 0; width: 100%; height: min(40vw, 62svh); object-fit: cover; object-position: 50% 50%; }
+  .slide__pics { position: absolute; inset: 0 0 0 34%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .slide__pics img { width: 100%; height: 100%; object-fit: cover; }
+  .slide__shade { position: absolute; inset: 0; background: linear-gradient(90deg, #050505 0%, #050505 30%, transparent 62%), linear-gradient(0deg, #050505cc, transparent 40%); }
+  .slide--cover .slide__shade { background: linear-gradient(0deg, #050505 0%, #050505 calc(100% - min(40vw, 62svh)), transparent calc(100% - min(40vw, 62svh) + 140px)); }
+  .slide__txt { position: absolute; left: clamp(16px, 4vw, 48px); bottom: 150px; max-width: 560px; }
+  .slide__txt h1, .slide__txt h2 { margin: 14px 0 28px; font-size: clamp(38px, 5.6vw, 76px); font-weight: 300; line-height: 1.02; letter-spacing: -.02em; }
+  .slide.is-active .slide__txt > * { animation: rise 1.1s cubic-bezier(.22,.61,.36,1) both; }
+  .slide.is-active .slide__txt > *:nth-child(2) { animation-delay: .12s; } .slide.is-active .slide__txt > *:nth-child(3) { animation-delay: .24s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+  .hero__ui { position: absolute; left: 0; right: 0; bottom: 36px; z-index: 5; max-width: 1400px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); }
+  .bars { display: flex; gap: clamp(16px, 3vw, 40px); }
+  .bar { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; width: clamp(110px, 16vw, 220px); text-align: left; opacity: .5; transition: opacity .3s; }
+  .bar.is-active, .bar:hover { opacity: 1; }
+  .bar__num { font-size: 12px; } .bar__label { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar__track { grid-column: 1 / -1; height: 1px; background: rgba(255,255,255,.22); overflow: hidden; }
+  .bar__track i { display: block; height: 100%; background: #fff; transform: scaleX(0); transform-origin: left; }
+  .bar.is-done .bar__track i { transform: none; }
+  .bar.is-active .bar__track i { animation: barfill var(--dur) linear forwards; }
+  .bar.is-paused .bar__track i { animation-play-state: paused; }
+  @keyframes barfill { to { transform: none; } }
+
+  .sec { padding: clamp(64px, 9vw, 120px) 0; }
+  .sec__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 36px; }
+  .sec__title { font-size: clamp(30px, 3.6vw, 52px); font-weight: 300; line-height: 1.08; letter-spacing: -.02em; }
+  .sec__sub { color: #8d8a85; }
+
+  .tiles { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, minmax(240px, 30vw)); gap: 8px; }
+  .tile { position: relative; overflow: hidden; border-radius: 6px; background: #151515; }
+  .tile--0 { grid-row: span 2; }
+  .tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s cubic-bezier(.22,.61,.36,1); }
+  .tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, #000a, transparent 50%); }
+  .tile:hover img { transform: scale(1.05); }
+  .tile__txt { position: absolute; left: 22px; bottom: 20px; z-index: 1; display: grid; gap: 4px; }
+  .tile__t { font-size: clamp(18px, 1.8vw, 26px); font-weight: 400; } .tile__n { font-size: 13px; color: #c9c4bb; }
+  .tile__arr { position: absolute; right: 18px; bottom: 18px; z-index: 1; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; display: grid; place-items: center; transition: .3s; }
+  .tile__arr svg { width: 18px; } .tile:hover .tile__arr { background: #ecebe8; color: #0b0b0b; }
+
+  .sec--goods { background: #101010; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button { height: 38px; padding: 0 16px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; font-size: 13px; color: #c9c4bb; transition: .2s; }
+  .chips button.is-on { background: #ecebe8; color: #0b0b0b; border-color: #ecebe8; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 12px; }
+  .card { display: flex; flex-direction: column; }
+  .card__pic { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 6px; background: radial-gradient(circle at 50% 30%, #2a2622, #151515); }
+  .card__pic img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s; }
+  .card:hover .card__pic img { transform: scale(1.04); }
+  .card__badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 999px; background: #6b4a33; font-size: 12px; font-weight: 600; }
+  .card__t { margin-top: 16px; font-size: 15px; }
+  .card__p { margin-top: 4px; font-weight: 600; } .card__p s { margin-left: 6px; color: #6f6b66; font-weight: 400; }
+  .card__btn { margin-top: 14px; align-self: start; height: 40px; padding: 0 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; transition: .25s; }
+  .card__btn:hover, .card__btn.is-added { background: #ecebe8; color: #0b0b0b; }
+
+  .about__in { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(32px, 6vw, 96px); }
+  .about__lead { display: grid; gap: 20px; align-content: start; }
+  .about__rate { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+  .about__rate b { font-size: 56px; font-weight: 300; color: #d7c7ae; }
+  .about__list { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); border-radius: 6px; overflow: hidden; }
+  .about__list li { display: grid; gap: 10px; align-content: start; padding: 28px; background: #0b0b0b; }
+  .about__list h3 { font-size: 20px; font-weight: 400; }
+
+  .ft { padding: 48px 0; border-top: 1px solid rgba(255,255,255,.08); font-size: 14px; color: #8d8a85; }
+  .ft__in { display: flex; flex-wrap: wrap; gap: 32px 64px; align-items: start; }
+  .ft__logo { font-size: 40px; color: #ecebe8; margin-right: auto; }
+
+  @media (max-width: 900px) {
+    .hd__nav, .hd__phone { display: none; } .hd__tools { margin-left: auto; }
+    .slide__pics { inset: 0; grid-template-columns: 1fr 1fr; } .slide__pics img:nth-child(3) { display: none; }
+    .slide__shade { background: linear-gradient(0deg, #050505 0%, #050505aa 45%, transparent 75%); }
+    .slide__txt { bottom: 110px; right: 16px; }
+    .hero { height: 680px; min-height: 0; }
+    .slide--cover > img { top: 72px; height: 62vw; object-position: 30% 50%; }
+    .slide--cover .slide__shade { background: none; }
+    .bar__label { display: none; } .bar { width: 64px; }
+    .tiles { grid-template-columns: 1fr 1fr; grid-template-rows: none; grid-auto-rows: 52vw; }
+    .tile--0 { grid-column: span 2; grid-row: auto; }
+    .tile__arr { display: none; } .tile__txt { left: 14px; bottom: 12px; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 28px 10px; }
+    .card__t { font-size: 14px; } .card__btn { padding: 0 14px; }
+    .about__in, .about__list { grid-template-columns: 1fr; }
+  }
+</style>

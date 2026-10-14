@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import { variants, url, photo, pick } from '../data/site';
+const covers = pick([15, 7, 32, 12, 31, 13, 46, 99]);
+---
+<Base title="SIKOR – 8 вариантов главной интернет-магазина" fonts="Manrope:wght@400;500;600">
+  <main class="hub">
+    <header class="hub__head">
+      <p class="logo hub__logo">SIKOR</p>
+      <h1>8 вариантов главной страницы интернет-магазина</h1>
+      <p class="hub__lead">Каталог, фото, цены и тексты – из сообщества <a href="https://vk.ru/sikor_men">vk.ru/sikor_men</a>. В каждом варианте четыре блока, один из них – товары (без перехода в карточку, кнопка кладёт в корзину).</p>
+    </header>
+    <ol class="hub__grid">
+      {variants.map((v, i) => (
+        <li>
+          <a href={url(`${v.slug}/`)} class="hub__card">
+            <img src={photo(covers[i])} alt="" loading="lazy" />
+            <span class="hub__num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="hub__title">{v.title}</span>
+            <span class="hub__note">{v.note}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </main>
+</Base>
+<style>
+  :global(body) { background: #f2efe9; color: #141414; font: 400 15px/1.5 'Manrope', system-ui, sans-serif; }
+  .hub { max-width: 1280px; margin: 0 auto; padding: clamp(28px, 6vw, 72px) 16px 80px; }
+  .hub__head { max-width: 760px; margin-bottom: 40px; }
+  .hub__logo { font-size: clamp(44px, 8vw, 84px); }
+  h1 { margin: 18px 0 12px; font-size: clamp(22px, 3vw, 32px); font-weight: 600; line-height: 1.2; }
+  .hub__lead { color: #5b5750; }
+  .hub__lead a { text-decoration: underline; }
+  .hub__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .hub__card { display: grid; gap: 6px; }
+  .hub__card img { aspect-ratio: 3 / 4; object-fit: cover; width: 100%; background: #ddd6ca; transition: opacity 0.3s; }
+  .hub__card:hover img { opacity: 0.85; }
+  .hub__num { margin-top: 6px; font-size: 12px; color: #8a847a; letter-spacing: 0.1em; }
+  .hub__title { font-size: 20px; font-weight: 600; }
+  .hub__note { font-size: 14px; color: #5b5750; }
+  @media (max-width: 900px) { .hub__grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } .hub__title { font-size: 17px; } .hub__note { font-size: 13px; } }
+</style>
