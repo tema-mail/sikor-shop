@@ -1,0 +1,154 @@
+---
+// Вариант 5 – по мотивам idol.ru/catalog/man: журнальная сетка, большие ч/б кадры вперемешку с товарами
+// на светло-сером фоне, мелкий капс, метки «Новинка», сердечки.
+import Base from '../../layouts/Base.astro';
+import { CartCount, Chips } from '../../components/Shop';
+import { site, cats, pick, photo, srcset, rub, off, url, type Product } from '../../data/site';
+
+const lead = pick([31])[0];
+const first = pick([7, 3, 128, 10]);
+const look = pick([138])[0];
+const grid = pick([12, 105, 19, 4, 46, 36, 15, 11, 141, 1, 175, 9]);
+const second = pick([174])[0];
+const tag = (p: Product) => (p.old ? `−${off(p).slice(1)}` : 'Новинка');
+---
+<Base title="SIKOR – мужская одежда · вариант IDOL" fonts="Montserrat:wght@400;500;600" theme="#ffffff">
+  <header class="hd">
+    <div class="hd__l">
+      <button class="hd__burger" type="button" aria-label="Меню"><i></i><i></i></button>
+      <a href="#feed">Новинки</a><a class="is-on" href="#feed">Мужчинам</a>
+    </div>
+    <a href={url('')} class="logo hd__logo">SIKOR</a>
+    <div class="hd__r">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="6" /><path d="m20 20-4.5-4.5" /></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" /></svg>
+      <span class="hd__cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 8h12l-1 12H7L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg><CartCount client:load /></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. Открывающая сетка: большой кадр + четыре вещи -->
+    <section class="mosaic">
+      <figure class="ed ed--big">
+        <img src={photo(lead, 1200)} alt={lead.title} fetchpriority="high" />
+        <figcaption><span>{lead.title}</span><span>{rub(lead.price)}</span></figcaption>
+      </figure>
+      {first.map((p) => (
+        <article class="card">
+          <div class="card__pic"><img src={photo(p)} alt={p.title} /><span class="card__tag">{tag(p)}</span></div>
+          <div class="card__row"><span class="card__t">{p.title}</span><button class="card__add" type="button" data-add={p.title} aria-label="В корзину">+</button></div>
+          <span class="card__p">{rub(p.price)}</span>
+        </article>
+      ))}
+    </section>
+
+    <!-- 2. Образ по центру -->
+    <section class="look">
+      <figure>
+        <img src={photo(look, 1200)} alt={look.title} loading="lazy" />
+        <figcaption><span>{look.title} · образ от стилиста SIKOR</span><span>{rub(look.price)}</span></figcaption>
+      </figure>
+      <p class="look__txt">{site.motto}</p>
+    </section>
+
+    <!-- 3. Лента товаров -->
+    <section class="feed" id="feed">
+      <div class="feed__bar">
+        <p class="feed__count">{grid.length + 1} товаров</p>
+        <Chips client:load target="#feed" chips={cats.filter((c) => grid.some((p) => p.cat === c.id)).map((c) => ({ id: c.id, title: c.title }))} />
+      </div>
+      <div class="mosaic mosaic--feed">
+        <figure class="ed ed--big ed--right" data-cat={second.cat}>
+          <img src={photo(second, 1200)} alt={second.title} loading="lazy" />
+          <figcaption><span>{second.title}</span><span><s>{second.old && rub(second.old)}</s> {rub(second.price)}</span></figcaption>
+        </figure>
+        {grid.map((p) => (
+          <article class="card" data-cat={p.cat}>
+            <div class="card__pic"><img src={photo(p)} srcset={srcset(p)} sizes="(max-width: 700px) 50vw, 25vw" alt={p.title} loading="lazy" /><span class="card__tag">{tag(p)}</span></div>
+            <div class="card__row"><span class="card__t">{p.title}</span><button class="card__add" type="button" data-add={p.title} aria-label="В корзину">+</button></div>
+            <span class="card__p">{p.old && <s>{rub(p.old)}</s>} {rub(p.price)}</span>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. Магазин -->
+    <section class="store">
+      <div class="store__pic"><img src={photo(pick([95])[0], 1200)} alt="" loading="lazy" /></div>
+      <div class="store__txt">
+        <p class="cap">Магазин SIKOR</p>
+        <h2>{site.city}, {site.mall}</h2>
+        <p>{site.about}</p>
+        <ul>
+          <li><span>Адрес</span>{site.address}</li>
+          <li><span>Часы</span>{site.hours}</li>
+          <li><span>Телефон</span><a href={site.phoneHref}>{site.phone}</a></li>
+          <li><span>Отзывы</span>{site.rating} из 5 · {site.reviews} отзывов в VK</li>
+        </ul>
+        <a class="btn" href={site.write} target="_blank" rel="noopener">Записаться на подбор</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ft"><span class="logo">SIKOR</span><span>{site.motto}</span><a href={site.vk}>VK</a></footer>
+</Base>
+
+<style is:global>
+  body { background: #fff; color: #111; font: 400 12px/1.5 'Montserrat', system-ui, sans-serif; }
+  .hd { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 56px; padding: 0 20px; background: #fff; }
+  .hd__l { display: flex; align-items: center; gap: 22px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+  .hd__l a.is-on { border-bottom: 1px solid #111; }
+  .hd__burger { display: grid; gap: 5px; width: 18px; } .hd__burger i { height: 1px; background: #111; }
+  .hd__logo { font-size: 26px; }
+  .hd__r { display: flex; justify-content: end; align-items: center; gap: 18px; } .hd__r svg { width: 20px; }
+  .hd__cart { display: flex; align-items: center; gap: 4px; }
+
+  .mosaic { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-flow: dense; gap: 32px 8px; padding: 0 20px; }
+  .ed { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; }
+  .ed img { flex: 1; width: 100%; min-height: 0; object-fit: cover; filter: grayscale(1); }
+  .ed--right { grid-column: 3 / 5; }
+  .ed figcaption, .look figcaption { display: flex; justify-content: space-between; gap: 12px; padding-top: 10px; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; }
+  .ed s { color: #999; }
+  .card { display: flex; flex-direction: column; }
+  .card__pic { position: relative; aspect-ratio: 3 / 4; background: #f0f0f0; overflow: hidden; }
+  .card__pic img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s; }
+  .card:hover .card__pic img { transform: scale(1.03); }
+  .card__tag { position: absolute; top: 10px; left: 10px; font-size: 8px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #111; background: #fffc; padding: 2px 5px; }
+  .card__row { display: flex; justify-content: space-between; align-items: start; gap: 8px; padding-top: 10px; }
+  .card__t { text-transform: uppercase; font-size: 10px; letter-spacing: .04em; }
+  .card__add { flex: none; width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid #ccc; border-radius: 50%; font-size: 14px; line-height: 1; transition: .2s; }
+  .card__add:hover, .card__add.is-added { background: #111; color: #fff; border-color: #111; }
+  .card__p { font-size: 11px; } .card__p s { color: #999; margin-right: 4px; }
+
+  .look { display: grid; justify-items: center; gap: 28px; padding: clamp(64px, 8vw, 120px) 20px; }
+  .look figure { width: min(100%, 50%); }
+  .look img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+  .look__txt { max-width: 520px; text-align: center; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+
+  .feed__bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 0 20px 20px; }
+  .feed__count { font-size: 11px; color: #777; text-transform: uppercase; letter-spacing: .04em; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  .chips button { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: #888; padding: 4px 0; border-bottom: 1px solid transparent; }
+  .chips button.is-on { color: #111; border-color: #111; }
+
+  .store { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: clamp(64px, 8vw, 120px); padding: 0 20px; }
+  .store__pic img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; filter: grayscale(1); }
+  .store__txt { display: grid; gap: 16px; align-content: center; padding: clamp(24px, 5vw, 80px); background: #f0f0f0; }
+  .cap { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #777; }
+  .store h2 { font-size: clamp(20px, 2.2vw, 30px); font-weight: 500; text-transform: uppercase; letter-spacing: .02em; line-height: 1.2; }
+  .store p { font-size: 13px; max-width: 460px; }
+  .store ul { display: grid; gap: 8px; font-size: 12px; } .store li span { display: inline-block; width: 92px; color: #888; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; }
+  .btn { justify-self: start; padding: 14px 24px; background: #111; color: #fff; font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+
+  .ft { display: flex; flex-wrap: wrap; gap: 16px 40px; align-items: center; margin-top: 64px; padding: 28px 20px; border-top: 1px solid #e5e5e5; color: #777; text-transform: uppercase; font-size: 10px; letter-spacing: .06em; }
+  .ft .logo { color: #111; font-size: 20px; margin-right: auto; }
+
+  @media (max-width: 900px) {
+    .hd { grid-template-columns: auto 1fr auto; padding: 0 16px; } .hd__l a:not(.is-on), .hd__r svg:not(.hd__cart svg) { display: none; } .hd__logo { justify-self: center; }
+    .mosaic { grid-template-columns: 1fr 1fr; gap: 24px 6px; padding: 0 6px; }
+    .ed, .ed--right { grid-column: span 2; grid-row: auto; } .ed img { flex: none; aspect-ratio: 4 / 5; }
+    .look figure { width: 100%; }
+    .feed__bar { padding: 0 16px 16px; }
+    .store { grid-template-columns: 1fr; padding: 0 6px; }
+  }
+</style>
