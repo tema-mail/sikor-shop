@@ -1,0 +1,209 @@
+---
+// Вариант 8 – свой, под SIKOR: сильная сторона магазина – подбор стилиста и «Готовые образы» (раздел их VK).
+// Продаём образ целиком и вещи из него. Тёплая гамма шоурума: песок, шоколад, молочный.
+import Base from '../../layouts/Base.astro';
+import { CartCount, Chips } from '../../components/Shop';
+import { site, cats, pick, photo, srcset, rub, url } from '../../data/site';
+
+const looks = [
+  { t: 'На работу', d: 'Рубашка, брюки со складкой и кожаные лоферы – собранно, но без галстука.', lead: 46, ids: [46, 11, 3] },
+  { t: 'Выходные', d: 'Тёплая куртка, вязаный полузамок и свободные джинсы – удобно на весь день.', lead: 12, ids: [12, 7, 17, 0] },
+  { t: 'Вечер', d: 'Шерстяное пальто, водолазка и замшевые лоферы – когда нужно выглядеть дорого.', lead: 31, ids: [31, 128, 10, 4] },
+].map((l) => ({ ...l, p: pick([l.lead])[0], items: pick(l.ids), sum: pick(l.ids).reduce((s, p) => s + p.price, 0) }));
+const items = pick([15, 13, 86, 6, 36, 34, 105, 90, 19, 11, 17, 1]);
+const steps = [
+  { t: 'Напишите', d: 'Расскажите в VK, для чего нужен образ, и пришлите размер.' },
+  { t: 'Приходите', d: `Стилист подготовит варианты к вашему визиту в ${site.mall}.` },
+  { t: 'Уходите в образе', d: 'Примеряете, выбираете – и все вещи уже сочетаются между собой.' },
+];
+---
+<Base title="SIKOR – готовые мужские образы · свой вариант" fonts="Onest:wght@400;500;600|Fraunces:opsz,wght@9..144,400;9..144,500" theme="#ebe4d8">
+  <header class="hd">
+    <a href={url('')} class="logo hd__logo">SIKOR</a>
+    <nav class="hd__nav"><a href="#looks">Готовые образы</a><a href="#shop">Каталог</a><a href="#visit">Стилист</a></nav>
+    <span class="hd__cart">Корзина <CartCount client:load /></span>
+  </header>
+
+  <main>
+    <!-- 1. Первый экран -->
+    <section class="hero">
+      <div class="hero__txt">
+        <p class="pill">Мужская базовая одежда · {site.city}</p>
+        <h1>Одевайтесь <em>образами</em>, а&nbsp;не&nbsp;вещами</h1>
+        <p class="hero__lead">Стилист SIKOR подберёт комплект под вашу задачу: работа, встреча, выходные. Без логотипов и лишних деталей.</p>
+        <div class="hero__cta">
+          <a class="btn" href="#looks">Смотреть образы</a>
+          <a class="btn btn--line" href={site.write} target="_blank" rel="noopener">Подбор у стилиста</a>
+        </div>
+        <dl class="hero__facts">
+          <div><dt>{site.rating}</dt><dd>рейтинг в VK</dd></div>
+          <div><dt>{site.followers}</dt><dd>подписчиков</dd></div>
+          <div><dt>10–22</dt><dd>каждый день</dd></div>
+        </dl>
+      </div>
+      <div class="hero__pics">
+        {pick([7, 15, 99]).map((p, i) => <img class={`hp hp--${i}`} src={photo(p, 1200)} alt={p.title} fetchpriority={i === 0 ? 'high' : 'auto'} />)}
+      </div>
+    </section>
+
+    <!-- 2. Готовые образы -->
+    <section class="sec" id="looks">
+      <div class="sec__head">
+        <h2>Готовые образы</h2>
+        <p>Каждый образ собран стилистом из вещей в наличии. Берите целиком или по одной вещи.</p>
+      </div>
+      <div class="looks">
+        {looks.map((l, i) => (
+          <article class="look">
+            <div class="look__pic"><img src={photo(l.p, 1200)} alt={`Образ «${l.t}»`} loading="lazy" /><span class="look__n">0{i + 1}</span></div>
+            <div class="look__body">
+              <h3>{l.t}</h3>
+              <p class="look__d">{l.d}</p>
+              <ul class="look__list">
+                {l.items.map((p) => (
+                  <li><img src={photo(p)} alt="" loading="lazy" /><span>{p.title}</span><b>{rub(p.price)}</b></li>
+                ))}
+              </ul>
+              <div class="look__sum"><span>Образ целиком</span><b>{rub(l.sum)}</b></div>
+              <button class="btn btn--full" type="button" data-add={`Образ «${l.t}»`}>Взять образ</button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 3. Каталог -->
+    <section class="sec sec--shop" id="shop">
+      <div class="sec__head sec__head--row">
+        <h2>Вещи по отдельности</h2>
+        <Chips client:load target="#shop" chips={cats.filter((c) => items.some((p) => p.cat === c.id)).map((c) => ({ id: c.id, title: c.title }))} />
+      </div>
+      <ul class="grid">
+        {items.map((p) => (
+          <li class="card" data-cat={p.cat}>
+            <div class="card__pic">
+              <img src={photo(p)} srcset={srcset(p)} sizes="(max-width: 700px) 50vw, 25vw" alt={p.title} loading="lazy" />
+              <button class="card__add" type="button" data-add={p.title} aria-label={`${p.title} в корзину`}>+</button>
+            </div>
+            <p class="card__t">{p.title}</p>
+            <p class="card__p">{rub(p.price)}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- 4. Визит к стилисту -->
+    <section class="sec visit" id="visit">
+      <div class="visit__card">
+        <p class="pill pill--dark">Консультация в магазине</p>
+        <h2>Подбор образа у стилиста</h2>
+        <ol class="steps">
+          {steps.map((s, i) => <li><span>{i + 1}</span><b>{s.t}</b><p>{s.d}</p></li>)}
+        </ol>
+        <div class="visit__cta">
+          <a class="btn btn--light" href={site.write} target="_blank" rel="noopener">Написать в VK</a>
+          <a class="visit__tel" href={site.phoneHref}>{site.phone}</a>
+        </div>
+      </div>
+      <div class="visit__place">
+        <img src={photo(pick([95])[0], 1200)} alt="" loading="lazy" />
+        <div class="visit__addr">
+          <b>{site.mall}</b>
+          <span>{site.city}, {site.address}</span>
+          <span>{site.hours}</span>
+          <a href={site.map} target="_blank" rel="noopener">Открыть на карте →</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ft"><span class="logo">SIKOR</span><span>{site.motto}</span><a href={site.vk}>vk.ru/sikor_men</a></footer>
+</Base>
+
+<style is:global>
+  :root { --sand: #ebe4d8; --milk: #f7f3ec; --choc: #3b2a20; --brown: #6b4a33; --mute: #8a7a68; }
+  body { background: var(--sand); color: var(--choc); font: 400 15px/1.55 'Onest', system-ui, sans-serif; }
+  .hd { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 32px; height: 64px; padding: 0 clamp(16px, 4vw, 56px); background: color-mix(in srgb, var(--sand) 88%, transparent); backdrop-filter: blur(10px); }
+  .hd__logo { font-size: 24px; } .hd__nav { display: flex; gap: 26px; margin: 0 auto; font-weight: 500; }
+  .hd__cart { padding: 8px 16px; border-radius: 999px; background: var(--choc); color: var(--milk); font-size: 13px; font-weight: 500; }
+  .pill { justify-self: start; display: inline-block; padding: 6px 14px; border: 1px solid #3b2a2033; border-radius: 999px; font-size: 13px; }
+  .pill--dark { border-color: #f7f3ec44; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 26px; border-radius: 999px; background: var(--choc); color: var(--milk); font-weight: 500; transition: background .2s, transform .2s; }
+  .btn:hover { background: var(--brown); } .btn:active { transform: scale(.98); }
+  .btn--line { background: none; color: var(--choc); border: 1px solid var(--choc); } .btn--line:hover { background: var(--choc); color: var(--milk); }
+  .btn--light { background: var(--milk); color: var(--choc); } .btn--light:hover { background: #fff; }
+  .btn--full { width: 100%; } .btn.is-added { background: var(--brown); }
+
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 64px); align-items: center; padding: clamp(24px, 4vw, 56px) clamp(16px, 4vw, 56px) clamp(56px, 7vw, 96px); }
+  .hero__txt { display: grid; gap: 24px; }
+  .hero h1 { font: 400 clamp(40px, 5.4vw, 84px)/1 'Fraunces', serif; letter-spacing: -.02em; }
+  .hero h1 em { color: var(--brown); }
+  .hero__lead { max-width: 480px; font-size: 17px; color: #5a4636; }
+  .hero__cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero__facts { display: flex; gap: clamp(20px, 3vw, 48px); margin: 8px 0 0; padding-top: 22px; border-top: 1px solid #3b2a2022; }
+  .hero__facts dt { font: 500 28px/1 'Fraunces', serif; } .hero__facts dd { margin: 4px 0 0; font-size: 13px; color: var(--mute); }
+  .hero__pics { position: relative; height: min(76svh, 720px); }
+  .hp { position: absolute; object-fit: cover; border-radius: 18px; box-shadow: 0 30px 60px -30px #3b2a2066; }
+  .hp--0 { left: 0; top: 0; width: 58%; height: 78%; }
+  .hp--1 { right: 0; top: 12%; width: 38%; height: 50%; }
+  .hp--2 { right: 6%; bottom: 0; width: 46%; height: 40%; object-position: 50% 30%; }
+
+  .sec { padding: clamp(56px, 7vw, 100px) clamp(16px, 4vw, 56px); }
+  .sec__head { display: grid; gap: 12px; max-width: 640px; margin-bottom: 40px; }
+  .sec__head--row { max-width: none; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; }
+  .sec h2 { font: 400 clamp(32px, 3.6vw, 54px)/1.05 'Fraunces', serif; letter-spacing: -.01em; }
+  .sec__head p { color: #5a4636; }
+
+  .looks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .look { display: flex; flex-direction: column; background: var(--milk); border-radius: 20px; overflow: hidden; }
+  .look__pic { position: relative; aspect-ratio: 4 / 5; overflow: hidden; }
+  .look__pic img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s; }
+  .look:hover .look__pic img { transform: scale(1.04); }
+  .look__n { position: absolute; top: 16px; left: 16px; padding: 4px 12px; border-radius: 999px; background: var(--milk); font-weight: 600; font-size: 13px; }
+  .look__body { display: flex; flex-direction: column; gap: 14px; flex: 1; padding: 24px; }
+  .look h3 { font: 500 26px/1.1 'Fraunces', serif; } .look__d { color: #5a4636; font-size: 14px; }
+  .look__list { display: grid; gap: 8px; margin-top: auto; }
+  .look__list li { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; font-size: 14px; }
+  .look__list img { width: 40px; height: 52px; object-fit: cover; border-radius: 6px; } .look__list b { font-weight: 500; }
+  .look__sum { display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; border-top: 1px dashed #3b2a2033; }
+  .look__sum b { font: 500 24px 'Fraunces', serif; }
+
+  .sec--shop { background: var(--milk); border-radius: 32px 32px 0 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button { height: 40px; padding: 0 16px; border-radius: 999px; background: var(--sand); font-size: 14px; transition: .2s; }
+  .chips button.is-on { background: var(--choc); color: var(--milk); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 14px; }
+  .card__pic { position: relative; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 14px; background: var(--sand); }
+  .card__pic img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s; }
+  .card:hover .card__pic img { transform: scale(1.04); }
+  .card__add { position: absolute; right: 10px; bottom: 10px; width: 44px; height: 44px; border-radius: 50%; background: var(--milk); font-size: 22px; line-height: 1; box-shadow: 0 6px 18px #3b2a2026; transition: .2s; }
+  .card__add:hover, .card__add.is-added { background: var(--choc); color: var(--milk); }
+  .card__t { margin-top: 12px; font-weight: 500; } .card__p { color: var(--mute); }
+
+  .visit { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; background: var(--milk); padding-top: 0; }
+  .visit__card { display: grid; gap: 24px; align-content: start; padding: clamp(28px, 4vw, 56px); border-radius: 24px; background: var(--choc); color: var(--milk); }
+  .visit__card h2 { color: var(--milk); }
+  .steps { display: grid; gap: 18px; counter-reset: s; }
+  .steps li { display: grid; grid-template-columns: 40px 1fr; gap: 2px 16px; }
+  .steps span { grid-row: span 2; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: #f7f3ec1a; font-weight: 600; }
+  .steps b { font-size: 17px; font-weight: 500; } .steps p { color: #d8cbbb; font-size: 14px; }
+  .visit__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+  .visit__tel { font-size: 18px; font-weight: 500; }
+  .visit__place { position: relative; min-height: 460px; border-radius: 24px; overflow: hidden; }
+  .visit__place img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .visit__addr { position: absolute; left: 16px; right: 16px; bottom: 16px; display: grid; gap: 2px; padding: 20px; border-radius: 16px; background: #f7f3ecee; backdrop-filter: blur(8px); font-size: 14px; }
+  .visit__addr b { font-size: 17px; font-weight: 600; } .visit__addr a { margin-top: 8px; font-weight: 500; color: var(--brown); }
+
+  .ft { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 40px; padding: 32px clamp(16px, 4vw, 56px); background: var(--milk); border-top: 1px solid #3b2a2014; color: var(--mute); font-size: 14px; }
+  .ft .logo { color: var(--choc); font-size: 22px; margin-right: auto; }
+
+  @media (max-width: 1000px) { .looks { grid-template-columns: 1fr; max-width: 560px; } }
+  @media (max-width: 900px) {
+    .hd__nav { display: none; } .hd__cart { margin-left: auto; }
+    .hero { grid-template-columns: 1fr; } .hero__pics { order: -1; height: 112vw; }
+    .hero__facts dt { font-size: 22px; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 24px 10px; }
+    .sec--shop { border-radius: 20px 20px 0 0; }
+    .visit { grid-template-columns: 1fr; } .visit__place { min-height: 420px; }
+  }
+</style>
